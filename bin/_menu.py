@@ -13,7 +13,7 @@ import time
 
 from _lcd import PCD8544
 from _keypad import keypad
-from _system import get_ip, get_uptime
+from _system import get_ip, get_uptime, get_memused
 
 class navigation_menu:
 
@@ -51,9 +51,8 @@ class navigation_menu:
     def menu_init(self):
         if self.menu_pos != self.last_menu_pos:
             self.last_menu_pos = self.menu_pos
-            self.lcd.centre_word(0,"netPi")
-            self.lcd.centre_word(1,": ready :")
-            self.lcd.centre_word(3,"Use as teclas")
+            self.lcd.centre_word(0,":netPi: ready")
+            self.lcd.centre_word(2,"Use as teclas")
             ip = get_ip('eth0')
             self.lcd.centre_word(5,ip)
 
@@ -84,7 +83,7 @@ class navigation_menu:
             self.lcd.gotoxy(0,2)
             self.lcd.text("CPU:")
             self.lcd.gotoxy(0,3)
-            self.lcd.text("MEM:")
+            self.lcd.text("MEM: %s MB" % get_memused())
             self.lcd.gotoxy(0,4)
             self.lcd.text("UP: %s" % get_uptime())
 
@@ -100,7 +99,7 @@ class navigation_menu:
                 self.pad.read()
                 menu_function = eval('self.menu_'+self.menu_screens[self.menu_pos])
                 menu_function()
-                time.sleep(0.05)
+                time.sleep(0.01)
 
         except KeyboardInterrupt:
             self.kill_handler(0, '')
