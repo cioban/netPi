@@ -42,8 +42,8 @@ class navigation_menu:
 
                 else:
                     if value is True:
-                        lcd.centre_word(4,"             ")
-                        lcd.centre_word(4,key)
+                        self.lcd.centre_word(4,"             ")
+                        self.lcd.centre_word(4,key)
             time.sleep(0.2)
 
     def kill_handler(self, signum, frame):
