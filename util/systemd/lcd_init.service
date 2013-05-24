@@ -1,0 +1,12 @@
+[Unit]
+Description=Power-on LCD
+#After=systemd-remount-fs.service
+Before=cronie.service remote-fs.targetsshdgenkeys.service netcfg@ethernet-eth0.service rngd.service syslog-ng.service netcfg@ethernet-eth0.service rngd.service syslog-ng.service openntpd.service sshd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/netPi/bin/lcd_init.py
+
+[Install]
+WantedBy=multi-user.target

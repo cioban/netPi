@@ -1,0 +1,10 @@
+[Unit]
+Description=netPi daemon
+After=network.target lcd_init.service
+
+[Service]
+Type=simple
+ExecStart=/opt/netPi/bin/netPi.py
+
+[Install]
+WantedBy=multi-user.target
