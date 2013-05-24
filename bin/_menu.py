@@ -13,10 +13,9 @@ import time
 
 from _lcd import PCD8544
 from _keypad import keypad
-from _system import get_ip, get_uptime, get_memused
+from _system import get_ip, get_uptime, get_memused, cpu_usage
 
 class navigation_menu:
-
     lcd = None
     pad = None
     asterisk_old = False
@@ -45,8 +44,6 @@ class navigation_menu:
     def menu_pos_down(self):
         self.menu_pos = self.menu_pos - 1
         self.menu_pos_common()
-
-
 
     def menu_init(self):
         if self.menu_pos != self.last_menu_pos:
@@ -81,7 +78,7 @@ class navigation_menu:
             self.lcd.gotoxy(0,0)
             self.lcd.text(":netPi: system")
             self.lcd.gotoxy(0,2)
-            self.lcd.text("CPU:")
+            self.lcd.text("CPU: %s%%" % cpu_usage())
             self.lcd.gotoxy(0,3)
             self.lcd.text("MEM: %s MB" % get_memused())
             self.lcd.gotoxy(0,4)
