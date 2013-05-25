@@ -10,10 +10,23 @@ __date__ = '24/05/2013 11:25:20 AM'
 import os
 import sys
 import time
+from threading import Thread
 
 from _lcd import PCD8544
 from _keypad import keypad
 from _system import get_ip, get_uptime, get_memused, cpu_usage
+
+
+class navigation_menu_thread(Thread):
+    def __init__(self, function):
+        Thread.__init__(self)
+        self.function = function
+
+    def run(self):
+        self.function()
+
+    def stop(self):
+        self = None
 
 class navigation_menu:
     lcd = None
@@ -22,9 +35,11 @@ class navigation_menu:
     start_hold_time = 0
     shutdown_time = 3
 
-    menu_screens = ['init', 'system', ]
+    menu_screens = ['init', 'system', 'analyser_controller', 'analyser_status']
     menu_pos = 0
     last_menu_pos = -1
+
+    analyzer_running = False
 
     def __init__(self):
         self.lcd = PCD8544()
@@ -36,6 +51,7 @@ class navigation_menu:
         if self.menu_pos >= len(self.menu_screens):
             self.menu_pos = 0
         self.lcd.cls()
+        self.lcd.set_display_mode()
 
     def menu_pos_up(self):
         self.menu_pos = self.menu_pos + 1
@@ -89,6 +105,43 @@ class navigation_menu:
                 self.menu_pos_up()
             elif key == 'four' and value is True:
                 self.menu_pos_down()
+            elif key == 'five' and value is True:
+                self.last_menu_pos = -1
+
+    def menu_analyser_controller(self):
+        if self.menu_pos != self.last_menu_pos:
+            self.last_menu_pos = self.menu_pos
+            self.lcd.centre_word(0,":netPi:")
+            self.lcd.gotoxy(0,1)
+            self.lcd.text("analyzer ctrl")
+
+        for key, value in self.pad.key_value.iteritems():
+            if key == 'six' and value is True:
+                self.menu_pos_up()
+            elif key == 'four' and value is True:
+                self.menu_pos_down()
+            elif key == 'five' and value is True:
+                self.last_menu_pos = -1
+
+    def menu_analyser_status(self):
+        if self.analyzer_running is False:
+            self.menu_pos_up()
+            menu_function = eval('self.menu_'+self.menu_screens[self.menu_pos])
+            menu_function()
+            return
+
+        if self.menu_pos != self.last_menu_pos:
+            self.last_menu_pos = self.menu_pos
+
+            self.lcd.centre_word(0,":netPi:")
+            self.lcd.gotoxy(0,1)
+            self.lcd.text("analyzer stat")
+
+        for key, value in self.pad.key_value.iteritems():
+            if key == 'six' and value is True:
+                self.menu_pos_up()
+            elif key == 'four' and value is True:
+                self.menu_pos_down()
 
     def loop(self):
         try:
@@ -96,7 +149,7 @@ class navigation_menu:
                 self.pad.read()
                 menu_function = eval('self.menu_'+self.menu_screens[self.menu_pos])
                 menu_function()
-                time.sleep(0.01)
+                time.sleep(0.2)
 
         except KeyboardInterrupt:
             self.kill_handler(0, '')
