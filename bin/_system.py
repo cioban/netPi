@@ -15,7 +15,7 @@ import re
 import time
 
 class cpu_usage:
-   def __init__(self, interval=0.1, percentage=True):
+   def __init__(self, interval=0.3, percentage=True):
        self.interval=interval
        self.percentage=percentage
        self.result=self.compute()
@@ -45,7 +45,7 @@ class cpu_usage:
        return result
 
    def __repr__(self):
-       return str(self.result)
+       return str(round(self.result, 1))
 
 
 def get_meminfo():
