@@ -228,10 +228,17 @@ class PCD8544:
 
         GPIO.setup(self.LED, GPIO.OUT, initial=GPIO.HIGH)
 
+    def stop_data(self):
+        GPIO.output(self.SCE, GPIO.LOW)
+        GPIO.output(self.RST, GPIO.LOW)
+        #time.sleep(1/1000000.0)
+        GPIO.output(self.RST, GPIO.HIGH)
+
     def set_display_mode(self, invert=False):
         # Toggle RST low to reset.
         GPIO.output(self.SCE, GPIO.LOW)
         GPIO.output(self.RST, GPIO.LOW)
+        #time.sleep(1/1000000.0)
         GPIO.output(self.RST, GPIO.HIGH)
         if invert is True:
             # Extended mode, bias, vop, basic mode, inverted display.
@@ -253,6 +260,7 @@ class PCD8544:
 
     def lcd_cmd(self, value):
         GPIO.output(self.DC, GPIO.LOW)
+        time.sleep(1/1000000.0)
         self.SPI(value)
 
     def lcd_data(self, value):
