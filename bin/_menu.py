@@ -15,6 +15,7 @@ from threading import Thread
 from _lcd import PCD8544
 from _keypad import keypad
 from _system import get_ip, get_uptime, get_memused, cpu_usage
+from _tcpdump import TCPDUMP, IPV4
 
 
 class navigation_menu_thread(Thread):
@@ -64,7 +65,7 @@ class navigation_menu:
     def menu_init(self):
         if self.menu_pos != self.last_menu_pos:
             self.last_menu_pos = self.menu_pos
-            self.lcd.centre_word(0,":netPi: ready")
+            self.lcd.centre_word(0,":netPi:ready")
             self.lcd.centre_word(2,"Use as teclas")
             ip = get_ip('eth0')
             self.lcd.centre_word(5,ip)
@@ -91,8 +92,8 @@ class navigation_menu:
     def menu_system(self):
         if self.menu_pos != self.last_menu_pos:
             self.last_menu_pos = self.menu_pos
-            self.lcd.gotoxy(0,0)
-            self.lcd.text(":netPi: system")
+            self.lcd.centre_word(0, ":netPi: system")
+
             self.lcd.gotoxy(0,2)
             self.lcd.text("CPU: %s%%" % cpu_usage())
             self.lcd.gotoxy(0,3)
@@ -111,9 +112,15 @@ class navigation_menu:
     def menu_analyser_controller(self):
         if self.menu_pos != self.last_menu_pos:
             self.last_menu_pos = self.menu_pos
-            self.lcd.centre_word(0,":netPi:")
-            self.lcd.gotoxy(0,1)
-            self.lcd.text("analyzer ctrl")
+            self.lcd.centre_word(0,":netPi:analyze")
+            self.lcd.gotoxy(0,2)
+            if self.analyzer_running is True:
+                self.lcd.text("Analyzer: RUN ")
+            else:
+                self.lcd.text("Analyzer: STOP")
+            self.lcd.gotoxy(0,4)
+            self.lcd.text("Use a tecla #")
+
 
         for key, value in self.pad.key_value.iteritems():
             if key == 'six' and value is True:
@@ -132,16 +139,15 @@ class navigation_menu:
 
         if self.menu_pos != self.last_menu_pos:
             self.last_menu_pos = self.menu_pos
-
-            self.lcd.centre_word(0,":netPi:")
-            self.lcd.gotoxy(0,1)
-            self.lcd.text("analyzer stat")
+            self.lcd.centre_word(0,":netPi:stat")
 
         for key, value in self.pad.key_value.iteritems():
             if key == 'six' and value is True:
                 self.menu_pos_up()
             elif key == 'four' and value is True:
                 self.menu_pos_down()
+            elif key == 'five' and value is True:
+                self.last_menu_pos = -1
 
     def loop(self):
         try:
