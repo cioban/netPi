@@ -245,9 +245,6 @@ class IPV4:
         self.ip_protocol_count()
 
 
-
-
-
 class TCPDUMP:
     ethertypes = {
         0x0800: ['IPv4', 0, IPV4],
@@ -334,22 +331,6 @@ class TCPDUMP:
             ethertype_function = ethertype_data[2]
             ethertype_function(data)
 
-        #self.dumper.dump(hdr, new_frame)
-        #print data[0]
-        #print teste & 0x0F
-        #print (teste & 0xF0) >> 4
-        #printByte(hdr)
-        #print 'hdr.pcaplen:',hdr.getcaplen()
-        #print 'hdr.len:', hdr.getlen()
-        #print hdr.getts() # TIMESTAMP'
-        #print 'len:', len(data)
-        #printByte(ethertype)
-        #printByte(mac_src)
-        #print(ethertype)
-        #printByte(data[12:14])
-        #print '=========='
-
-
     def main(self):
         # Parse flags
         # Arguments here are:
@@ -358,26 +339,23 @@ class TCPDUMP:
         # promiscious mode (1 for true)
         # timeout (in milliseconds)
         self.cap = pcapy.open_live(self.iface, 1518, 1, 0)
-        #self.dumper = cap.dump_open('/tmp/teste.cap')
 
         try:
             self.cap.loop(0, self.pkt_handler)
         except KeyboardInterrupt:
-            #print '%s' % sys.exc_type
             print 'shutting down'
-        #print dir(dumper)
-        from pprint import pprint
-        for ether, DATA in self.ethertypes.iteritems():
-            if DATA[1] > 0:
-                print('%s: %d' % (DATA[0], DATA[1]))
-        for proto, DATA in IPV4.protocols.iteritems():
-            if DATA[1] > 0:
-                print('%s: %d' % (DATA[0], DATA[1]))
-        pprint(self.ethernet_data)
-        pprint(IPV4.ip_data)
-        sys.exit(0)
+
 
 if __name__ == "__main__":
     tcpdump = TCPDUMP(iface='eth0')
     tcpdump.main()
+    from pprint import pprint
+    for ether, DATA in tcpdump.ethertypes.iteritems():
+        if DATA[1] > 0:
+            print('%s: %d' % (DATA[0], DATA[1]))
+    for proto, DATA in IPV4.protocols.iteritems():
+        if DATA[1] > 0:
+            print('%s: %d' % (DATA[0], DATA[1]))
+    pprint(tcpdump.ethernet_data)
+    pprint(IPV4.ip_data)
 
