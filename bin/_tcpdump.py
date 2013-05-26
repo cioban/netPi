@@ -289,7 +289,7 @@ class TCPDUMP:
         0x9000: ['Ethernet Configuration Testing Protocol', 0, None],
         0x9100: ['Q-in-Q', 0, None],
         0xCAFE: ['Veritas Low Latency Transport (LLT)', 0, None],
-        0x0000: ['Unkown', 0, None],
+        0x0000: ['Unknown', 0, None],
     }
 
     ethernet_data = {
@@ -304,7 +304,7 @@ class TCPDUMP:
         self.dumpsize = dumpsize
         self.dumper = None
         self.cap = None
-        self.pkt_couter = 0
+        self.keep_running = True
 
     def pkt_handler(self, hdr, received_data):
         data = received_data
@@ -338,10 +338,19 @@ class TCPDUMP:
         # snaplen (maximum number of bytes to capture _per_packet_)
         # promiscious mode (1 for true)
         # timeout (in milliseconds)
+        self.keep_running = True
         self.cap = pcapy.open_live(self.iface, 1518, 1, 0)
 
         try:
-            self.cap.loop(0, self.pkt_handler)
+            #self.cap.loop(0, self.pkt_handler)
+            (header, payload) = self.cap.next()
+            while header:
+                self.pkt_handler(header, payload)
+
+                if self.keep_running is False:
+                    break
+
+                (header, payload) = self.cap.next()
         except KeyboardInterrupt:
             print 'shutting down'
 
@@ -350,9 +359,11 @@ if __name__ == "__main__":
     tcpdump = TCPDUMP(iface='eth0')
     tcpdump.main()
     from pprint import pprint
+    print '=== ethertypes ==='
     for ether, DATA in tcpdump.ethertypes.iteritems():
         if DATA[1] > 0:
             print('%s: %d' % (DATA[0], DATA[1]))
+    print '=== protocols ==='
     for proto, DATA in IPV4.protocols.iteritems():
         if DATA[1] > 0:
             print('%s: %d' % (DATA[0], DATA[1]))
