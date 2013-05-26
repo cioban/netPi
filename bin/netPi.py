@@ -19,18 +19,19 @@ if __name__ == "__main__":
             lcd = None
             menu = navigation_menu()
             signal.signal(signal.SIGTERM, menu.kill_handler)
-            #TODO: iniciar a thread que ira controlar o tcpdump
+
+            lcd = PCD8544()
 
             menu.loop()
 
         except KeyboardInterrupt:
             menu.kill_handler(0, '')
 
-        #except Exception, e:
-        #    if lcd is not None:
-        #        lcd.cls()
-        #        lcd.centre_word(0,"ERROR!!!")
-        #        lcd.gotoxy(0,1)
-        #        lcd.text(str(e))
+        except Exception, e:
+            if lcd is not None:
+                lcd.cls()
+                lcd.centre_word(0,"ERROR!!!")
+                lcd.gotoxy(0,1)
+                lcd.text(str(e))
 
         time.sleep(5)
