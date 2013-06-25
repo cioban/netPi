@@ -14,7 +14,7 @@ from threading import Thread
 
 from _lcd import PCD8544
 from _keypad import keypad
-from _system import get_ip, get_uptime, get_memused, cpu_usage
+from _system import get_ip, get_uptime, get_memused, cpu_usage, get_temp
 from _tcpdump import TCPDUMP, IPV4
 
 
@@ -94,10 +94,12 @@ class navigation_menu:
             self.last_menu_pos = self.menu_pos
             self.lcd.centre_word(0, ":system info")
 
-            self.lcd.gotoxy(0,2)
+            self.lcd.gotoxy(0,1)
             self.lcd.text("CPU: %s%%" % cpu_usage())
-            self.lcd.gotoxy(0,3)
+            self.lcd.gotoxy(0,2)
             self.lcd.text("MEM: %s MB" % get_memused())
+            self.lcd.gotoxy(0,3)
+            self.lcd.text("TEMP: %s'C" % get_temp())
             self.lcd.gotoxy(0,4)
             self.lcd.text("UP: %s" % get_uptime())
 

@@ -11,58 +11,15 @@ import socket
 import fcntl
 import struct
 from datetime import timedelta
-import re
-import time
+import psutil
 
-class cpu_usage:
-   def __init__(self, interval=0.3, percentage=True):
-       self.interval=interval
-       self.percentage=percentage
-       self.result=self.compute()
+def cpu_usage():
+    return str(psutil.cpu_percent())
 
-   def get_time(self):
-       stat_file=file("/proc/stat", "r")
-       time_list=stat_file.readline().split(" ")[2:6]
-       stat_file.close()
-       for i in range(len(time_list))  :
-           time_list[i]=int(time_list[i])
-       return time_list
-
-   def delta_time(self):
-       x=self.get_time()
-       time.sleep(self.interval)
-       y=self.get_time()
-       for i in range(len(x)):
-           y[i]-=x[i]
-       return y
-
-   def compute(self):
-       t=self.delta_time()
-       if self.percentage:
-           result=100-(t[len(t)-1]*100.00/sum(t))
-       else:
-           result=sum(t)
-       return result
-
-   def __repr__(self):
-       return str(round(self.result, 1))
-
-
-def get_meminfo():
-    re_parser = re.compile(r'^(?P<key>\S*):\s*(?P<value>\d*)\s*kB')
-    result = dict()
-    for line in open('/proc/meminfo'):
-        match = re_parser.match(line)
-        if not match:
-            continue # skip lines that don't parse
-        key, value = match.groups(['key', 'value'])
-        result[key] = int(value)
-    return result
 
 def get_memused():
-    meminfo = get_meminfo()
-    memused = (meminfo['MemTotal'] -  meminfo['MemFree']) / 1024
-    return str(memused)
+    mem = psutil.virtual_memory()
+    return str((mem.used / 1024) / 1024)
 
 def get_uptime():
     with open('/proc/uptime', 'r') as f:
@@ -79,9 +36,15 @@ def get_ip(ifname):
     except Exception:
         return ''
 
+def get_temp():
+    temp = int(open('/sys/class/thermal/thermal_zone0/temp').read()) / 1e3
+
+    return str(round(temp, 2))
+
 if __name__ == '__main__':
     print get_uptime()
     print 'eth0:', get_ip('eth0')
-    print get_meminfo()
     print get_memused()
     print cpu_usage()
+    print get_temp()
+
