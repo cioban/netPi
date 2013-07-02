@@ -11,6 +11,8 @@ import datetime
 import pcapy
 import sys
 from struct import unpack
+from os.path import isfile
+from os import remove
 
 def printByte(char_array):
     for TT in char_array:
@@ -297,16 +299,20 @@ class TCPDUMP:
         'byte_counter': 0,
     }
 
-    def __init__(self, iface=None, dumpfile=None, dumptime=0, dumpsize=0):
+    iface = None
+    dumpfile = None
+    dumper = None
+    cap = None
+    keep_running = True
+
+    def __init__(self, iface=None, dumpfile='/opt/netPi/tmp/netpi.cap', dumptime=0, dumpsize=0):
         self.iface = iface
         self.dumpfile = dumpfile
         self.dumptime = dumptime
         self.dumpsize = dumpsize
-        self.dumper = None
-        self.cap = None
-        self.keep_running = True
 
     def pkt_handler(self, hdr, received_data):
+        self.dumper.dump(hdr, received_data)
         data = received_data
 
         self.ethernet_data['pkt_couter'] += 1
@@ -338,8 +344,14 @@ class TCPDUMP:
         # snaplen (maximum number of bytes to capture _per_packet_)
         # promiscious mode (1 for true)
         # timeout (in milliseconds)
+
+        if isfile(dumpfile):
+            remove(dumpfile)
+
         self.keep_running = True
         self.cap = pcapy.open_live(self.iface, 1518, 1, 0)
+        self.dumper = self.cap.dump_open(self.dumpfile)
+
 
         try:
             #self.cap.loop(0, self.pkt_handler)
@@ -356,7 +368,8 @@ class TCPDUMP:
 
 
 if __name__ == "__main__":
-    tcpdump = TCPDUMP(iface='eth0')
+    #tcpdump = TCPDUMP(iface='eth0')
+    tcpdump = TCPDUMP(iface='p2p1')
     tcpdump.main()
     from pprint import pprint
     print '=== ethertypes ==='
