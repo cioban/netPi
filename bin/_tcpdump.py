@@ -312,7 +312,6 @@ class TCPDUMP:
         self.dumpsize = dumpsize
 
     def pkt_handler(self, hdr, received_data):
-        self.dumper.dump(hdr, received_data)
         data = received_data
 
         self.ethernet_data['pkt_couter'] += 1
@@ -336,6 +335,7 @@ class TCPDUMP:
         if ethertype_data[2] is not None:
             ethertype_function = ethertype_data[2]
             ethertype_function(data)
+        self.dumper.dump(hdr, received_data)
 
     def main(self):
         # Parse flags
@@ -345,8 +345,8 @@ class TCPDUMP:
         # promiscious mode (1 for true)
         # timeout (in milliseconds)
 
-        if isfile(dumpfile):
-            remove(dumpfile)
+        if isfile(self.dumpfile):
+            remove(self.dumpfile)
 
         self.keep_running = True
         self.cap = pcapy.open_live(self.iface, 1518, 1, 0)
